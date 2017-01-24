@@ -41,7 +41,7 @@ app.get('/list', function(req, res){
 			console.log("Error displaying list of files", err);
 		} else {	  
 			for(var i = 0; i < data.Contents.length; i++) {
-	  			data.Contents[i].Url = 'https://s3-us-west-1.amazonaws.com/' + data.Name + '/' + data.Contents[i].Key;
+	  			data.Contents[i].Url = 'https:/" + "/s3-us-west-1.amazonaws.com/' + data.Name + '/' + data.Contents[i].Key;
 			}
 	  		res.send(data.Contents);
 		}
@@ -75,7 +75,7 @@ function deleteFilefromS3(filePath) {
 	    if (err) {
 	        console.log("Error deleting file: " + filename, err)
 	    } else {
-	        console.log("Successfully removed " + filename + " from " + _bucket);
+	        console.log("Successfully deleted " + filename + " from " + _bucket);
 	    }
 	})
 }
@@ -100,7 +100,6 @@ app.listen(5000, function() {
 	  	})
 	  	.on('change', function(path) {
 		  	console.log("File changed");
-			deleteFilefromS3(path);
 		  	copyFileToS3(path);
 	  	})
 	  	.on('unlink', function(path) {
@@ -111,4 +110,3 @@ app.listen(5000, function() {
 	  		console.log("Ready");
 	  	})
 })
-
