@@ -80,6 +80,10 @@ function deleteFilefromS3(filePath) {
 	})
 }
 function updateFileforS3(filePath) {
+	
+	var s = filePath.split("/");
+	var filename = s[s.length-1];
+	var params = {Bucket: _bucket, Key: filename};
 	//Add new version
 	s3.putObject(params, function(err, data) {
 		if (err) {
@@ -88,10 +92,6 @@ function updateFileforS3(filePath) {
 			console.log("Successfully updated" + filename + " to " + _bucket);	
 		}
 	})
-
-	var s = filePath.split("/");
-	var filename = s[s.length-1];
-	var params = {Bucket: _bucket, Key: filename};
 }
 
 app.listen(5000, function() {
