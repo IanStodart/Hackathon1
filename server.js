@@ -87,24 +87,25 @@ function updateFileforS3(filePath) {
 			var s = filePath.split("/");
 	  		var filename = s[s.length-1];
 			var params = { Bucket: _bucket, Key: filename, Body: data, ACL: "public-read" };
+			var par = { Bucket: _bucket, Key: filename, Body: data};
 
 			//Delete
-			s3.deleteObject(params, function(err, data) {
-	    		if (err) {
-	        		console.log("Error deleting file: " + filename, err)
-	    		} else {
-	       			onsole.log("Almost done updating");
-	    		}			
-		})
+			s3.deleteObject(para, function(err, data) {
+	    			if (err) {
+	        			console.log("Error deleting file: " + filename, err)
+	    			} else {
+	       				onsole.log("Almost done updating");
+	    			}			
+			})
 
-		//Add new version
-		s3.putObject(params, function(err, data) {
-			if (err) {
-				console.log("Error uploading file: " + filename, err)
-			} else {
-				console.log("Successfully updated" + filename + " to " + _bucket);	
-			}
-		})
+			//Add new version
+			s3.putObject(params, function(err, data) {
+				if (err) {
+					console.log("Error uploading file: " + filename, err)
+				} else {
+					console.log("Successfully updated" + filename + " to " + _bucket);	
+				}
+			})
 		}
 	})
 
