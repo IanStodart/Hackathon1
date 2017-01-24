@@ -9,17 +9,17 @@ var AWS = require('aws-sdk')
 var fs = require('fs')	
 var chokidar = require('chokidar')	// https://github.com/paulmillr/chokidar
 
+// Loading credentials
+AWS.config.loadFromPath('./config.json');
+
 var app = express()
 var s3 = new AWS.S3();	// S3 service object
-
-// Loading credentials 
-AWS.config.loadFromPath('./config.json');
 
 // Defining bucket to be used in S3
 var _bucket = 'cs499-hackaton1';
 
 // Defining path of folder to be watched
-var _path = "./folderToWatch";	// linux folder
+var _path = "/home/ec2-user/Hackathon1/folderToWatch";	// linux folder
 
 // Enabling CORS
 app.use(function(req, res, next) {
@@ -36,11 +36,15 @@ app.get('/', function(req, res) {
 // Display list of files in S3
 app.get('/list', function(req, res){
 	var params = { Bucket: _bucket };
-	s3.listObjects(params, 	function(err, data){	  
-		for(var i = 0; i < data.Contents.length; i++) {
-	  		data.Contents[i].Url = 'https://s3-us-west-1.amazonaws.com/' + data.Name + '/' + data.Contents[i].Key;
-		}	  
-	  	res.send(data.Contents);
+	s3.listObjects(params, 	function(err, data){
+		if (err) {
+			console.log("Error displaying list of files", err);
+		} else {	  
+			for(var i = 0; i < data.Contents.length; i++) {
+	  			data.Contents[i].Url = 'https://s3-us-west-1.amazonaws.com/' + data.Name + '/' + data.Contents[i].Key;
+			}
+	  		res.send(data.Contents);
+		}
 	})
 })
 
@@ -49,7 +53,7 @@ function copyFileToS3(filePath) {
 		if (err) {
 			console.log("Unable to upload file from: " + filePath, err);
 		} else {
-			var s = filePath.split("\\");
+			var s = filePath.split("/");
 	  		var filename = s[s.length-1];
 			var params = { Bucket: _bucket, Key: filename, Body: data, ACL: "public-read" };
 			s3.putObject(params, function(err, data) {
@@ -64,7 +68,7 @@ function copyFileToS3(filePath) {
 }
 
 function deleteFilefromS3(filePath) {
-	var s = filePath.split("\\");
+	var s = filePath.split("/");
 	var filename = s[s.length-1];
 	var params = {Bucket: _bucket, Key: filename};
 	s3.deleteObject(params, function(err, data) {
@@ -96,6 +100,7 @@ app.listen(5000, function() {
 	  	})
 	  	.on('change', function(path) {
 		  	console.log("File changed");
+			deleteFilefromS3(path);
 		  	copyFileToS3(path);
 	  	})
 	  	.on('unlink', function(path) {
@@ -106,3 +111,4 @@ app.listen(5000, function() {
 	  		console.log("Ready");
 	  	})
 })
+
