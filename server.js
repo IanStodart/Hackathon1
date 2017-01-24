@@ -24,56 +24,31 @@ app.get('/', function(req, res) {
 	res.sendfile('index.html')
 })
 
-app.get("/service", function(req, res) {
-	// File watcher
-	console.log("Watcher starting..")
-	// Initialize watcher.
-	var path = "C:\\Users\\sisim\\Desktop\\fileToWatch";
-	var watcher = chokidar.watch(path, {
-	  ignored: /(^|[\/\\])\../,
-	  persistent: true
-	});
-
-	// Something to use when events are received.
-	var log = console.log.bind(console);
-	// Add event listeners.
-	watcher
-	  .on('add', function(path) {
-	  	console.log("File Added");
-	  	copyFileToS3(path);
-	  })
-	  .on('change', function(path) {
-	  	console.log("File changed");
-	  	copyFileToS3(path);
-	  })
-	  .on('unlink', function(path) {
-	  	console.log("File removed");
-	  	deleteFilefromS3(path);
-	  })
-	  .on('ready', function() {
-	  	console.log("ready");
-	  })
-})
-
-function copyFileToS3(fileName) {
-	fs.readFile(fileName, function(err, data) {
+function copyFileToS3(filePath) {
+	fs.readFile(filePath, function(err, data) {
 		if (err) {
-			console.log("Unable to upload file", err);
+			console.log("Unable to upload file: " + filePath, err);
 		} else {
-			var params = { Bucket: bucket, Key: fileName, Body: data, ACL: "public-read" };
+			var s = filePath.split("\\");
+	  		var filename = s[s.length-1];
+	  		console.log(filename);
+			var params = { Bucket: bucket, Key: filename, Body: data, ACL: "public-read" };
 			s3.putObject(params, function(err, data) {
 				if (err) {
-					console.log("error uploading", err)
+					console.log("Error uploading file: " + filename, err)
 				} else {
-					console.log("Successfully uploaded data to " + bucket, data);
-					
+					console.log("Successfully uploaded data to " + bucket, data);	
 				}
 			})
 		}
 	})
 }
+
 function deleteFilefromS3(filePath) {
-	var params = {Bucket: bucket, Key: filePath};
+	var s = filePath.split("\\");
+	var filename = s[s.length-1];
+	console.log(filename);
+	var params = {Bucket: bucket, Key: filename};
 	s3.deleteObject(params, function(err, data) {
 	    if (err) {
 	        console.log(err)
@@ -97,4 +72,32 @@ app.get('/list', function(req, res){
 
 app.listen(5000, function() {
 	console.log("App listening on port 5000...")
+
+	// File watcher
+	console.log("Initializing watcher..")
+	var path = "C:\\Users\\sisim\\Desktop\\fileToWatch";
+	var watcher = chokidar.watch(path, {
+	  ignored: /(^|[\/\\])\../,
+	  persistent: true
+	});
+
+	// Something to use when events are received.
+	var log = console.log.bind(console);
+	// Add event listeners.
+	watcher
+	  .on('add', function(path) {
+	  	console.log("File added");
+	  	copyFileToS3(path);
+	  })
+	  .on('change', function(path) {
+	  	console.log("File changed");
+	  	copyFileToS3(path);
+	  })
+	  .on('unlink', function(path) {
+	  	console.log("File removed");
+	  	deleteFilefromS3(path);
+	  })
+	  .on('ready', function() {
+	  	console.log("ready");
+	  })
 })
