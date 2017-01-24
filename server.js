@@ -92,6 +92,7 @@ app.listen(5000, function() {
 
 	// Something to use when events are received.
 	var log = console.log.bind(console);
+
 	// Add event listeners.
 	watcher
 	  	.on('add', function(path) {
