@@ -20,8 +20,6 @@
   "dependencies": {
     "aws-sdk": "^2.7.27",
     "chokidar": "^1.6.1",
-    "express": "^4.14.0",
-    "node-watch": "^0.4.1",
-    "watch": "^1.0.1"
+    "express": "^4.14.0"
   }
 }
