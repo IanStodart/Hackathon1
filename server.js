@@ -90,7 +90,7 @@ function updateFileforS3(filePath) {
 			var par = { Bucket: _bucket, Key: filename, Body: data};
 
 			//Delete
-			s3.deleteObject(para, function(err, data) {
+			s3.deleteObject(par, function(err, data) {
 	    			if (err) {
 	        			console.log("Error deleting file: " + filename, err)
 	    			} else {
