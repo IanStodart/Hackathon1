@@ -80,32 +80,12 @@ function deleteFilefromS3(filePath) {
 	})
 }
 function updateFileforS3(filePath) {
-	fs.readFile(filePath, function(err, data) {
+	//Add new version
+	s3.putObject(params, function(err, data) {
 		if (err) {
-			console.log("Unable to upload file from: " + filePath, err);
+			console.log("Error uploading file: " + filename, err)
 		} else {
-			var s = filePath.split("/");
-	  		var filename = s[s.length-1];
-			var params = { Bucket: _bucket, Key: filename, Body: data, ACL: "public-read" };
-			var par = { Bucket: _bucket, Key: filename, Body: data};
-
-			//Delete
-			s3.deleteObject(par, function(err, data) {
-	    			if (err) {
-	        			console.log("Error deleting file: " + filename, err)
-	    			} else {
-	       				onsole.log("Almost done updating");
-	    			}			
-			})
-
-			//Add new version
-			s3.putObject(params, function(err, data) {
-				if (err) {
-					console.log("Error uploading file: " + filename, err)
-				} else {
-					console.log("Successfully updated" + filename + " to " + _bucket);	
-				}
-			})
+			console.log("Successfully updated" + filename + " to " + _bucket);	
 		}
 	})
 
