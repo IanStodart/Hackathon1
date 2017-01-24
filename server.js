@@ -79,6 +79,39 @@ function deleteFilefromS3(filePath) {
 	    }
 	})
 }
+function updateFileforS3(filePath) {
+	fs.readFile(filePath, function(err, data) {
+		if (err) {
+			console.log("Unable to upload file from: " + filePath, err);
+		} else {
+			var s = filePath.split("/");
+	  		var filename = s[s.length-1];
+			var params = { Bucket: _bucket, Key: filename, Body: data, ACL: "public-read" };
+
+			//Delete
+			s3.deleteObject(params, function(err, data) {
+	    		if (err) {
+	        		console.log("Error deleting file: " + filename, err)
+	    		} else {
+	       			onsole.log("Almost done updating");
+	    		}			
+		})
+
+		//Add new version
+		s3.putObject(params, function(err, data) {
+			if (err) {
+				console.log("Error uploading file: " + filename, err)
+			} else {
+				console.log("Successfully updated" + filename + " to " + _bucket);	
+			}
+		})
+		}
+	})
+
+	var s = filePath.split("/");
+	var filename = s[s.length-1];
+	var params = {Bucket: _bucket, Key: filename};
+}
 
 app.listen(5000, function() {
 	console.log("App listening on port 5000...")
@@ -100,8 +133,7 @@ app.listen(5000, function() {
 	  	})
 	  	.on('change', function(path) {
 		  	console.log("File changed");
-			deleteFilefromS3(path);
-		  	copyFileToS3(path);
+			updateFileforS3(path);
 	  	})
 	  	.on('unlink', function(path) {
 		  	console.log("File removed");
